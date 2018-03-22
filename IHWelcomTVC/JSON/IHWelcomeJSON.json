@@ -1,0 +1,45 @@
+{
+        "cellsUIStyle"  : 0,
+
+        "showStatusBar"  : true,
+        "statusBarStyle" : 1,
+        
+        "backgroundImgURL"                : "https://media.giphy.com/media/vw8TnizOMAkShPtWPV/giphy.gif",
+        "backgroundImgTurnBlur"           : true,
+        "backgroundImgBlurRadiusOrAlpha"  : 0.7,
+        "backgroundImgBlurType"           : 1,
+    
+    
+        "mainLabelText"             : "IDEA FOR HALLOWEEN",
+        "mainLabelFontName"         : "IBMPlexSerif-Medium",
+        "mainLabelFontSize_iPhone"  : 30,
+        "mainLabelFontSize_iPad"    : 45,
+        "mainLabelBackgroundColors" : [],
+        "mainLabelFontColors"       : ["#DAE7EC",
+                                       "#6A7A7C"],
+        "subLabelText"             : "Get to know the interactive history of Halloween",
+        "subLabelFontName"         : "IBMPlexSerif-Regular",
+        "subLabelFontSize_iPhone"  : 15,
+        "subLabelFontSize_iPad"    : 35,
+        "subLabelBackgroundColors" : [],
+        "subLabelFontColors"       : ["#DAE7EC",
+                                      "#6A7A7C"],
+    
+        "learnMoreBtnLabelText"            : "Learn more..",
+        "learnMoreBtnLabelFontName"        : "Oswald-ExtraLight",
+        "learnMoreBtnLabelFontSize_iPhone" : 17,
+        "learnMoreBtnLabelFontSize_iPad"   : 27,
+        "learnMoreBtnBackgroundColors"     : ["#354342", "#242C28"],
+        "learnMoreBtnLabelFontColors"      :  ["#ffffff"],
+
+        "skipOnBoardingBtnLabelText"            : "No, thanks",
+        "skipOnBoardingBtnLabelFontName"        : "Oswald-ExtraLight",
+        "skipOnBoardingBtnLabelFontSize_iPhone" : 17,
+        "skipOnBoardingBtnLabelFontSize_iPad"   : 27,
+        "skipOnBoardingBtnBackgroundColors"     : ["#474747", "#363636"],
+        "skipOnBoardingBtnLabelFontColors"      :  ["#ffffff"]
+}
+
+
+
+
