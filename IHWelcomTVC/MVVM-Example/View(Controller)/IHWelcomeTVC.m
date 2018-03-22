@@ -32,7 +32,7 @@
 - (void)loadView{
     [super loadView];
    
-    IHWelcomeStaticCell_ViewModel* vm_cell = [[IHWelcomeStaticCell_ViewModel alloc] initWithUIConfigByURL:@"linkOnGIT"];
+    IHWelcomeStaticCell_ViewModel* vm_cell = [[IHWelcomeStaticCell_ViewModel alloc] initWithUIConfigByURL:@"https://raw.githubusercontent.com/m1a7/IHWelcomTVC/master/IHWelcomTVC/JSON/IHWelcomeJSON.json"];
     // or
     // IHWelcomeStaticCell_ViewModel* vm_cell = [[IHWelcomeStaticCell_ViewModel alloc] initWithMockupModel:[IHWelcomeStaticCell_Model defaultMockup]];
     self.welcomeCell  = [[IHWelcomeStaticCell alloc] initWithViewModel:vm_cell];

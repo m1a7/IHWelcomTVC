@@ -30,8 +30,15 @@
 #define IPAD     UIUserInterfaceIdiomPad
 #define IPHONE   UIUserInterfaceIdiomPhone
 
-@implementation IHWelcomeStaticCell
 
+@interface IHWelcomeStaticCell ()
+
+@property (strong, nonatomic) UIView* placeholderView;
+
+@end
+
+
+@implementation IHWelcomeStaticCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
@@ -50,34 +57,55 @@
     self = [super init];
     if (self) {
         self.vm_cell = vm;
+        
+        self.placeholderView = [[UIView alloc] initWithFrame:self.contentView.frame];
+        self.placeholderView.backgroundColor = [UIColor redColor];
+        self.placeholderView.alpha = 0.7;
+        [self.contentView addSubview:self.placeholderView];
     }
     return self;
 }
 
 #pragma mark - Setters
 
+- (void) setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
+    if (self.placeholderView){
+        self.placeholderView.frame = frame;
+    }
+}
+
+
+
 - (void) setVm_cell:(IHWelcomeStaticCell_ViewModel *)vm_cell
 {
     // Вынести это определение во viewModel
     // NSString* contryCode = @"ru";
     // NSString* doneURL = [NSString stringWithFormat:@"https://github.com/.../IHHalloween/Localization/%@.IHWelcomeJSON.json",contryCode];
-   
-    _vm_cell = vm_cell;
-    
+
+    _vm_cell = vm_cell;    
     if (_vm_cell.model_cell)
     {
-        [self initUISubviews: _vm_cell];
-        [self addSubviewsOnContentView];
-        [self updateUI: _vm_cell];
+        //[self initUISubviews: _vm_cell];
+        //[self addSubviewsOnContentView];
+        //[self updateUI: _vm_cell];
     } else {
         __weak IHWelcomeStaticCell* bself = self;
         [_vm_cell getWelcomScreenDataFromURL: _vm_cell.urlUIConfig
                                    onSuccess:^(BOOL successOperation) {
-                                       // Обновить UI
-                                       [bself initUISubviews: _vm_cell];
-                                       [bself addSubviewsOnContentView];
-                                       [bself updateUI:bself.vm_cell];
-                                       [bself resizeSubviews];
+                                     
+                                           dispatch_sync(dispatch_get_main_queue(), ^{
+                                               NSLog(@"setVm_cell getWelcomScreenDataFromURL -[NSThread isMainThread] = %@", ([NSThread isMainThread]) ? @"YES": @"NO");
+                                               // Обновить UI
+                                               [bself initUISubviews: vm_cell];
+                                               [bself addSubviewsOnContentView];
+                                               [bself updateUI:bself.vm_cell];
+                                               [bself resizeSubviews];
+                                               [bself.placeholderView removeFromSuperview];
+                                               bself.placeholderView = nil;
+                                           });
+                        
                                    }
                                    onFailure:^(NSError *errorBlock, NSObject *errObj) {
                                     //#warning Обработь отсутствие интернета
@@ -101,29 +129,6 @@
     self.learnMoreBtn.frame        = [self cgrectFor_LearnMoreBtn];
 }
 
-- (void) initUISubviews:(IHWelcomeStaticCell_ViewModel*) vm
-{
-    if (self.contentView){
-    
-        if ([vm.model_cell.backgroundImgURL rangeOfString:@".gif"].location != NSNotFound) {
-            self.backgroundImgView  = [[FLAnimatedImageView alloc] init];
-        } else {
-            self.backgroundImgView = [[UIImageView alloc] init];
-               }
-
-            if (vm.model_cell.backgroundImgTurnBlur){
-                
-                if (!UIAccessibilityIsReduceTransparencyEnabled()) {
-                    self.blurView    = [[UIVisualEffectView alloc]init];
-                }
-            }
-            self.appNameLbl     = [UILabel new];
-            self.sloganLbl      = [UILabel new];
-            self.skipOnBoardBtn = [UIButton buttonWithType: UIButtonTypeSystem];
-            self.learnMoreBtn   = [IHLearnMoreBtn buttonWithType: UIButtonTypeSystem];
-        }
-}
-
 
 - (void) addSubviewsOnContentView
 {
@@ -137,55 +142,79 @@
     }
 }
 
+- (void) initUISubviews:(IHWelcomeStaticCell_ViewModel*) vm
+{
+    if (self.contentView){
+        
+        if ([vm.model_cell.backgroundImgURL rangeOfString:@".gif"].location != NSNotFound) {
+            self.backgroundImgView  = [[FLAnimatedImageView alloc] init];
+        } else {
+            self.backgroundImgView = [[UIImageView alloc] init];
+        }
+        if (vm.model_cell.backgroundImgTurnBlur){
+            if (!UIAccessibilityIsReduceTransparencyEnabled()) {
+                self.blurView    = [[UIVisualEffectView alloc]init];
+            }
+        }
+        self.appNameLbl     = [UILabel new];
+        self.appNameLbl.numberOfLines = 0;
+        self.appNameLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
+        self.appNameLbl.textAlignment      = NSTextAlignmentCenter;
+        
+        
+        self.sloganLbl      = [UILabel new];
+        self.sloganLbl.numberOfLines      = 0;
+        self.sloganLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
+        self.sloganLbl.textAlignment      = NSTextAlignmentCenter;
+        
+        self.skipOnBoardBtn = [UIButton buttonWithType: UIButtonTypeSystem];
+        self.learnMoreBtn   = [IHLearnMoreBtn buttonWithType: UIButtonTypeSystem];
+    }
+}
+
+
+
 - (void) updateUI:(IHWelcomeStaticCell_ViewModel*) vm
 {
-    
     if (vm){
-        dispatch_sync(dispatch_get_main_queue(), ^{
-
-            // IDEA FOR HALLOWEEN
-            NSString* fontName_AppNameLbl = vm.model_cell.mainLabelFontName;
-            float     fontSize_AppNameLbl = (IDIOM == IPHONE) ? vm.model_cell.mainLabelFontSize_iPhone : vm.model_cell.mainLabelFontSize_iPad;
-            UIFont*   fontForAppNameLbl = [UIFont fontWithName:fontName_AppNameLbl size:fontSize_AppNameLbl];
-            //#warning потом добавить родной шрит на случай падения
-            self.appNameLbl.text = vm.model_cell.mainLabelText;
-            self.appNameLbl.font = fontForAppNameLbl;
-            self.appNameLbl.numberOfLines = 0;
-            self.appNameLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
-            self.appNameLbl.textAlignment      = NSTextAlignmentCenter;
-            
-            
-            // Get to know the interactive history of Halloween
-            NSString* fontName_SloganLb = vm.model_cell.subLabelFontName;
-            float     fontSize_SloganLb = (IDIOM == IPHONE) ? vm.model_cell.subLabelFontSize_iPhone : vm.model_cell.subLabelFontSize_iPad;
-            UIFont*   fontForSloganLbl = [UIFont fontWithName:fontName_SloganLb size:fontSize_SloganLb];
-            
-            self.sloganLbl.text =  vm.model_cell.subLabelText;
-            self.sloganLbl.font = fontForSloganLbl;
-            self.sloganLbl.numberOfLines      = 0;
-            self.sloganLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
-            self.sloganLbl.textAlignment      = NSTextAlignmentCenter;
-            
-            // No, thanks
-            NSString* fontName_skipOnBoardBtn = vm.model_cell.skipOnBoardingBtnLabelFontName;
-            float     fontSize_skipOnBoardBtn = (IDIOM == IPHONE) ? vm.model_cell.skipOnBoardingBtnLabelFontSize_iPhone : vm.model_cell.skipOnBoardingBtnLabelFontSize_iPad;
-            UIFont*   font_skipOnBoardBtn = [UIFont fontWithName:fontName_skipOnBoardBtn size:fontSize_skipOnBoardBtn];
-            
-            self.skipOnBoardBtn.titleLabel.font = font_skipOnBoardBtn;
-            [self.skipOnBoardBtn setTitleColor:[UIColor whiteColor]                 forState: UIControlStateNormal];
-            [self.skipOnBoardBtn setTitle: vm.model_cell.skipOnBoardingBtnLabelText forState: UIControlStateNormal];
-            
-            
-            // Learn more
-            NSString* fontName_learnMoreBtn = vm.model_cell.learnMoreBtnLabelFontName;
-            float     fontSize_learnMoreBtn = (IDIOM == IPHONE) ? vm.model_cell.learnMoreBtnLabelFontSize_iPhone : vm.model_cell.learnMoreBtnLabelFontSize_iPad;
-            UIFont*   font_learnMoreBtn     = [UIFont fontWithName:fontName_learnMoreBtn size:fontSize_learnMoreBtn];
-            
-            self.learnMoreBtn.titleLabel.font = font_learnMoreBtn;
-            self.learnMoreBtn.layer.masksToBounds = YES;
-            [self.learnMoreBtn setTitleColor:[UIColor whiteColor]           forState: UIControlStateNormal];
-            [self.learnMoreBtn setTitle:vm.model_cell.learnMoreBtnLabelText forState: UIControlStateNormal];
-       
+        // IDEA FOR HALLOWEEN
+        NSString* fontName_AppNameLbl = vm.model_cell.mainLabelFontName;
+        float     fontSize_AppNameLbl = (IDIOM == IPHONE) ? vm.model_cell.mainLabelFontSize_iPhone : vm.model_cell.mainLabelFontSize_iPad;
+        UIFont*   fontForAppNameLbl = [UIFont fontWithName:fontName_AppNameLbl size:fontSize_AppNameLbl];
+        //#warning потом добавить родной шрит на случай падения
+        self.appNameLbl.text = vm.model_cell.mainLabelText;
+        self.appNameLbl.font = fontForAppNameLbl;
+     
+        
+        // Get to know the interactive history of Halloween
+        NSString* fontName_SloganLb = vm.model_cell.subLabelFontName;
+        float     fontSize_SloganLb = (IDIOM == IPHONE) ? vm.model_cell.subLabelFontSize_iPhone : vm.model_cell.subLabelFontSize_iPad;
+        UIFont*   fontForSloganLbl = [UIFont fontWithName:fontName_SloganLb size:fontSize_SloganLb];
+        
+        self.sloganLbl.text =  vm.model_cell.subLabelText;
+        self.sloganLbl.font = fontForSloganLbl;
+      
+        
+        // No, thanks
+        NSString* fontName_skipOnBoardBtn = vm.model_cell.skipOnBoardingBtnLabelFontName;
+        float     fontSize_skipOnBoardBtn = (IDIOM == IPHONE) ? vm.model_cell.skipOnBoardingBtnLabelFontSize_iPhone : vm.model_cell.skipOnBoardingBtnLabelFontSize_iPad;
+        UIFont*   font_skipOnBoardBtn = [UIFont fontWithName:fontName_skipOnBoardBtn size:fontSize_skipOnBoardBtn];
+        
+        self.skipOnBoardBtn.titleLabel.font = font_skipOnBoardBtn;
+        [self.skipOnBoardBtn setTitleColor:[UIColor whiteColor]                 forState: UIControlStateNormal];
+        [self.skipOnBoardBtn setTitle: vm.model_cell.skipOnBoardingBtnLabelText forState: UIControlStateNormal];
+        
+        
+        // Learn more
+        NSString* fontName_learnMoreBtn = vm.model_cell.learnMoreBtnLabelFontName;
+        float     fontSize_learnMoreBtn = (IDIOM == IPHONE) ? vm.model_cell.learnMoreBtnLabelFontSize_iPhone : vm.model_cell.learnMoreBtnLabelFontSize_iPad;
+        UIFont*   font_learnMoreBtn     = [UIFont fontWithName:fontName_learnMoreBtn size:fontSize_learnMoreBtn];
+        
+        self.learnMoreBtn.titleLabel.font = font_learnMoreBtn;
+        self.learnMoreBtn.layer.masksToBounds = YES;
+        [self.learnMoreBtn setTitleColor:[UIColor whiteColor]           forState: UIControlStateNormal];
+        [self.learnMoreBtn setTitle:vm.model_cell.learnMoreBtnLabelText forState: UIControlStateNormal];
+        
         // Download Image
         self.backgroundImgView.contentMode      = UIViewContentModeScaleAspectFill;
         self.backgroundImgView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -204,47 +233,51 @@
                 self.blurView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
             }
         }
-    });
-
+        
         if (vm.model_cell.backgroundImgURL.length > 0){
             __weak IHWelcomeStaticCell* bself = self;
             
             NSURL* imgURL = [NSURL URLWithString: vm.model_cell.backgroundImgURL];
             NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
             NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfig];
-             
+            
             NSURLSessionDownloadTask *downloadPhotoTask = [session//[NSURLSession sharedSession]
                                                            downloadTaskWithURL:imgURL
                                                            completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
                                                                
-                                                                #warning исправить в либах !!!!
+
+
                                                                NSData* data =  [NSData dataWithContentsOfURL:location];
-                                                               //NSData* data=  [NSData dataWithContentsOfURL:imgURL];
                                                                if (data) {
+                                                                  
+                                                                   dispatch_sync(dispatch_get_main_queue(), ^{
+                                                                    NSLog(@"updateUI downloadPhotoTask -[NSThread isMainThread] = %@", ([NSThread isMainThread]) ? @"YES": @"NO");
                                                                    // GIF support
                                                                    if ([imgURL.absoluteString rangeOfString:@".gif"].location != NSNotFound) {
                                                                        FLAnimatedImage* animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:data];
-                                                                       //dispatch_async(dispatch_get_main_queue(), ^{
-                                                                           bself.backgroundImgView.animatedImage = animatedImage;
-                                                                       //});
+                                                                       bself.backgroundImgView.animatedImage = animatedImage;
                                                                    }  // Another type support
                                                                    else {
                                                                        UIImage* image = [UIImage imageWithData:data];
-                                                                       //dispatch_async(dispatch_get_main_queue(), ^{
-                                                                               bself.backgroundImgView.image = image;
-                                                                        //});
+                                                                       bself.backgroundImgView.image = image;
                                                                    }
+                                                                   });
                                                                }
-                                                               [bself resizeSubviews];
+                                                               //[bself resizeSubviews];
                                                            }];
             [downloadPhotoTask resume];
             
-             } else {
-             // Добавляем одноцветый фон
-             self.backgroundImgView.backgroundColor = [UIColor yellowColor];
-               }
+        } else {
+            // Добавляем одноцветый фон
+            self.backgroundImgView.backgroundColor = [UIColor yellowColor];
+        }
     }
 }
+
+
+
+
+
 
 
 
@@ -339,5 +372,149 @@
     return [UIColor colorWithPatternImage:image];
 }
 
+
+/*
+- (void) initUISubviews:(IHWelcomeStaticCell_ViewModel*) vm
+{
+    if (self.contentView){
+        
+        if ([vm.model_cell.backgroundImgURL rangeOfString:@".gif"].location != NSNotFound) {
+            self.backgroundImgView  = [[FLAnimatedImageView alloc] init];
+        } else {
+            self.backgroundImgView = [[UIImageView alloc] init];
+        }
+        
+        if (vm.model_cell.backgroundImgTurnBlur){
+            
+            if (!UIAccessibilityIsReduceTransparencyEnabled()) {
+                self.blurView    = [[UIVisualEffectView alloc]init];
+            }
+        }
+        self.appNameLbl     = [UILabel new];
+        self.sloganLbl      = [UILabel new];
+        self.skipOnBoardBtn = [UIButton buttonWithType: UIButtonTypeSystem];
+        self.learnMoreBtn   = [IHLearnMoreBtn buttonWithType: UIButtonTypeSystem];
+    }
+}
+
+
+- (void) addSubviewsOnContentView
+{
+    if (self.contentView){
+        if (self.backgroundImgView) [self.contentView addSubview: self.backgroundImgView];
+        if (self.blurView)          [self.contentView addSubview: self.blurView];
+        if (self.appNameLbl)        [self.contentView addSubview: self.appNameLbl];
+        if (self.sloganLbl)         [self.contentView addSubview: self.sloganLbl];
+        if (self.skipOnBoardBtn)    [self.contentView addSubview: self.skipOnBoardBtn];
+        if (self.learnMoreBtn)      [self.contentView addSubview: self.learnMoreBtn];
+    }
+}
+
+- (void) updateUI:(IHWelcomeStaticCell_ViewModel*) vm
+{
+    
+    if (vm){
+        // IDEA FOR HALLOWEEN
+        NSString* fontName_AppNameLbl = vm.model_cell.mainLabelFontName;
+        float     fontSize_AppNameLbl = (IDIOM == IPHONE) ? vm.model_cell.mainLabelFontSize_iPhone : vm.model_cell.mainLabelFontSize_iPad;
+        UIFont*   fontForAppNameLbl = [UIFont fontWithName:fontName_AppNameLbl size:fontSize_AppNameLbl];
+        //#warning потом добавить родной шрит на случай падения
+        self.appNameLbl.text = vm.model_cell.mainLabelText;
+        self.appNameLbl.font = fontForAppNameLbl;
+        self.appNameLbl.numberOfLines = 0;
+        self.appNameLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
+        self.appNameLbl.textAlignment      = NSTextAlignmentCenter;
+        
+        
+        // Get to know the interactive history of Halloween
+        NSString* fontName_SloganLb = vm.model_cell.subLabelFontName;
+        float     fontSize_SloganLb = (IDIOM == IPHONE) ? vm.model_cell.subLabelFontSize_iPhone : vm.model_cell.subLabelFontSize_iPad;
+        UIFont*   fontForSloganLbl = [UIFont fontWithName:fontName_SloganLb size:fontSize_SloganLb];
+        
+        self.sloganLbl.text =  vm.model_cell.subLabelText;
+        self.sloganLbl.font = fontForSloganLbl;
+        self.sloganLbl.numberOfLines      = 0;
+        self.sloganLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
+        self.sloganLbl.textAlignment      = NSTextAlignmentCenter;
+        
+        // No, thanks
+        NSString* fontName_skipOnBoardBtn = vm.model_cell.skipOnBoardingBtnLabelFontName;
+        float     fontSize_skipOnBoardBtn = (IDIOM == IPHONE) ? vm.model_cell.skipOnBoardingBtnLabelFontSize_iPhone : vm.model_cell.skipOnBoardingBtnLabelFontSize_iPad;
+        UIFont*   font_skipOnBoardBtn = [UIFont fontWithName:fontName_skipOnBoardBtn size:fontSize_skipOnBoardBtn];
+        
+        self.skipOnBoardBtn.titleLabel.font = font_skipOnBoardBtn;
+        [self.skipOnBoardBtn setTitleColor:[UIColor whiteColor]                 forState: UIControlStateNormal];
+        [self.skipOnBoardBtn setTitle: vm.model_cell.skipOnBoardingBtnLabelText forState: UIControlStateNormal];
+        
+        
+        // Learn more
+        NSString* fontName_learnMoreBtn = vm.model_cell.learnMoreBtnLabelFontName;
+        float     fontSize_learnMoreBtn = (IDIOM == IPHONE) ? vm.model_cell.learnMoreBtnLabelFontSize_iPhone : vm.model_cell.learnMoreBtnLabelFontSize_iPad;
+        UIFont*   font_learnMoreBtn     = [UIFont fontWithName:fontName_learnMoreBtn size:fontSize_learnMoreBtn];
+        
+        self.learnMoreBtn.titleLabel.font = font_learnMoreBtn;
+        self.learnMoreBtn.layer.masksToBounds = YES;
+        [self.learnMoreBtn setTitleColor:[UIColor whiteColor]           forState: UIControlStateNormal];
+        [self.learnMoreBtn setTitle:vm.model_cell.learnMoreBtnLabelText forState: UIControlStateNormal];
+        
+        // Download Image
+        self.backgroundImgView.contentMode      = UIViewContentModeScaleAspectFill;
+        self.backgroundImgView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        
+        if (vm.model_cell.backgroundImgTurnBlur){
+            
+            if (!UIAccessibilityIsReduceTransparencyEnabled()) {
+                
+                self.blurEffect  = [UIBlurEffect effectWithStyle:vm.model_cell.backgroundImgBlurType];
+                __weak IHWelcomeStaticCell* bself = self;
+                [UIView animateWithDuration:0.7 animations:^{
+                    bself.blurView.alpha     = vm.model_cell.backgroundImgBlurRadiusOrAlpha;
+                    bself.blurView.effect    = bself.blurEffect;
+                }];
+                self.blurView.frame   = self.contentView.frame;
+                self.blurView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+            }
+        }
+        
+        if (vm.model_cell.backgroundImgURL.length > 0){
+            __weak IHWelcomeStaticCell* bself = self;
+            
+            NSURL* imgURL = [NSURL URLWithString: vm.model_cell.backgroundImgURL];
+            NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+            NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfig];
+            
+            NSURLSessionDownloadTask *downloadPhotoTask = [session//[NSURLSession sharedSession]
+                                                           downloadTaskWithURL:imgURL
+                                                           completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
+                                                               
+#warning исправить в либах !!!!
+                                                               NSData* data =  [NSData dataWithContentsOfURL:location];
+                                                               //NSData* data=  [NSData dataWithContentsOfURL:imgURL];
+                                                               if (data) {
+                                                                   // GIF support
+                                                                   if ([imgURL.absoluteString rangeOfString:@".gif"].location != NSNotFound) {
+                                                                       FLAnimatedImage* animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:data];
+                                                                       //dispatch_async(dispatch_get_main_queue(), ^{
+                                                                       bself.backgroundImgView.animatedImage = animatedImage;
+                                                                       //});
+                                                                   }  // Another type support
+                                                                   else {
+                                                                       UIImage* image = [UIImage imageWithData:data];
+                                                                       //dispatch_async(dispatch_get_main_queue(), ^{
+                                                                       bself.backgroundImgView.image = image;
+                                                                       //});
+                                                                   }
+                                                               }
+                                                               [bself resizeSubviews];
+                                                           }];
+            [downloadPhotoTask resume];
+            
+        } else {
+            // Добавляем одноцветый фон
+            self.backgroundImgView.backgroundColor = [UIColor yellowColor];
+        }
+    }
+}
+*/
 @end
 
