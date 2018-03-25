@@ -11,6 +11,7 @@
 //ViewControllers
 #import "IHWelcomeTVC.h"
 
+
 @interface AppDelegate ()
 
 @end
@@ -19,15 +20,18 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+
     IHWelcomeTVC *welcomeTVC = [[IHWelcomeTVC alloc] initWithStyle: UITableViewStylePlain];
 
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.rootViewController = welcomeTVC;
-    [self.window makeKeyAndVisible];    
+    [self.window makeKeyAndVisible];
+    
+    
     return YES;
 }
 
 @end
+
 
 

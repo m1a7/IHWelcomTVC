@@ -15,6 +15,9 @@
 @property (nonatomic, strong) IHWelcomeStaticCell_Model* model_cell;
 @property (nonatomic, strong) NSString* urlUIConfig;
 
+
++ (NSString*) getCorrectURLbyLocation:(NSString*) url;
+
 - (instancetype) initWithUIConfigByURL:(NSString*) url;
 - (instancetype) initWithMockupModel:(IHWelcomeStaticCell_Model*) model;
 

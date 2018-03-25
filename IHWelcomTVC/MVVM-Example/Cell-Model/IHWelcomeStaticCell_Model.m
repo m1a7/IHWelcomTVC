@@ -91,9 +91,9 @@
 }
 
 
-- (void) description
+- (NSString*) description
 {
-    NSLog(@"self.cellsUIStyle   = %d " , self.cellsUIStyle);
+    NSLog(@"self.cellsUIStyle   = %ld " , self.cellsUIStyle);
     NSLog(@"self.showStatusBar  = %d" , self.showStatusBar);
     NSLog(@"self.statusBarStyle = %d", self.statusBarStyle);
     
@@ -108,6 +108,7 @@
     NSLog(@"self.backgroundImgTurnBlur = %d", self.backgroundImgTurnBlur);
     NSLog(@"self.backgroundImgBlurRadiusOrAlpha = %f", self.backgroundImgBlurRadiusOrAlpha);
     NSLog(@"self.backgroundImgBlurType          = %d", self.backgroundImgBlurType);
+    return nil;
 }
 
 + (IHWelcomeStaticCell_Model*) defaultMockup   // - IHWelcomeCellStyleDefault
@@ -133,7 +134,7 @@
     mockup.subLabelFontColors       = @[@"#DAE7EC", @"#6A7A7C"];
     
     
-    mockup.backgroundImgURL       = @"https://pp.userapi.com/c845017/v845017855/9d52/uhIIWQdPA20.jpg";
+    mockup.backgroundImgURL       = @"https://pp.userapi.com/c837725/v837725862/6bd03/DygeiL9IY24.jpg";
     mockup.backgroundImgTurnBlur  = YES;
     mockup.backgroundImgBlurRadiusOrAlpha = 1.0;
     mockup.backgroundImgBlurType  = 1;

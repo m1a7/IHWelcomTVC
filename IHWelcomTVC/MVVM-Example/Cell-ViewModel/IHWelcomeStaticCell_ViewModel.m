@@ -28,7 +28,7 @@
 {
     self = [super init];
     if (self) {
-        
+        self.model_cell = model;
     }
     return self;
 }
@@ -49,24 +49,6 @@
                           onSuccess:(void(^)(BOOL successOperation)) success
                           onFailure:(void(^)(NSError* errorBlock,  NSObject* errObj)) failure
 {
-    #warning переписать на nsoperationQueue
-    // LOAD JSON.
-    /*
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul);
-    dispatch_async(queue, ^{
-        
-        NSString *path = [[NSBundle mainBundle] pathForResource:@"IHWelcomeJSON" ofType:@"json"];
-        NSData *data   = [NSData dataWithContentsOfFile:path];
-        NSDictionary* jsonDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
-        
-        if (jsonDict) {
-            self.model_cell  = [self parseWithMapping:jsonDict andClassModel:[IHWelcomeStaticCell_Model class]];
-            (self.model_cell) ? success(self.model_cell != nil) : failure(nil, nil);
-        } else {
-           failure(nil, nil);
-              }
-    });
-     */
     __weak IHWelcomeStaticCell_ViewModel* bself = self;
     NSURL* jsonURL = [NSURL URLWithString:url];
     NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -76,19 +58,21 @@
                                                    downloadTaskWithURL:jsonURL
                                                    completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
                                                        
-                                                       NSLog(@"downloadJSONTask -[NSThread isMainThread] = %@", ([NSThread isMainThread]) ? @"YES": @"NO");
-                                                       NSData* dataJSON =  [NSData dataWithContentsOfURL:location];
+           NSLog(@"downloadJSONTask -[NSThread isMainThread] = %@", ([NSThread isMainThread]) ? @"YES": @"NO");
+           NSData* dataJSON =  [NSData dataWithContentsOfURL:location];
+           
+           if (dataJSON) {
+               // Load from Network
+               NSDictionary* jsonDict = [NSJSONSerialization JSONObjectWithData:dataJSON options:kNilOptions error:nil];
+               bself.model_cell       = [self parseWithMapping:jsonDict andClassModel:[IHWelcomeStaticCell_Model class]];
+        
+           } else {
+                    // Load local copy
+                    bself.model_cell = [bself localOfflineVersionOfJSON];
+                   }
+           (bself.model_cell) ? success(bself.model_cell != nil) : failure(nil, nil);
                                                        
-                                                       if (dataJSON) {
-                                                           // Load from Network
-                                                           NSDictionary* jsonDict = [NSJSONSerialization JSONObjectWithData:dataJSON options:kNilOptions error:nil];
-                                                           bself.model_cell       = [self parseWithMapping:jsonDict andClassModel:[IHWelcomeStaticCell_Model class]];
-                                                       } else {
-                                                                // Load local copy
-                                                                bself.model_cell = [bself localOfflineVersionOfJSON];
-                                                               }
-                                                       (bself.model_cell) ? success(bself.model_cell != nil) : failure(nil, nil);
-                                                   }];
+    }];
     [downloadJSONTask resume];
 }
 
@@ -106,7 +90,6 @@
 }
 
 
-#warning Transfer to serverManger
 
 - (id) parseWithMapping:(NSDictionary*) responDict andClassModel:(Class) modelClass {
 
@@ -119,4 +102,11 @@
   return nil;
 }
 
+
++ (NSString*) getCorrectURLbyLocation:(NSString*) url
+{
+    // NSString *languageCode = [[NSLocale preferredLanguages] firstObject];
+    // NSString* convertURL = [NSString stringWithFormat:@"https://raw.githubusercontent.com/m1a7/IHWelcomTVC/master/IHWelcomTVC/JSON/%@/IHWelcomeJSON.json", languageCode];
+    return url;
+}
 @end

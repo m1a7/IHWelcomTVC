@@ -26,6 +26,7 @@
 
 // UI
 @property (nonatomic, strong) FLAnimatedImageView* backgroundImgView;
+
 @property (nonatomic, strong) UIBlurEffect*       blurEffect;
 @property (nonatomic, strong) UIVisualEffectView* blurView;
 

@@ -7,12 +7,13 @@
 //
 
 #import "IHWelcomeStaticCell.h"
+// Native framework
+#import <MessageUI/MessageUI.h>
 
 // Thrid-party fraemwork
 #import <FLAnimatedImage/FLAnimatedImage.h>
 #import <FLAnimatedImage/FLAnimatedImageView.h>
 #import <SDWebImage/UIImageView+WebCache.h>
-
 
 // Category for calculate height
 #import "UILabel+Utility.h"
@@ -31,14 +32,15 @@
 #define IPHONE   UIUserInterfaceIdiomPhone
 
 
-@interface IHWelcomeStaticCell ()
+@interface IHWelcomeStaticCell () <MFMailComposeViewControllerDelegate>
 
 @property (strong, nonatomic) UIView* placeholderView;
 
 @end
 
-
 @implementation IHWelcomeStaticCell
+
+#pragma mark - Life cycle
 
 - (void)awakeFromNib {
     [super awakeFromNib];
@@ -56,12 +58,13 @@
 {
     self = [super init];
     if (self) {
-        self.vm_cell = vm;
-        
+        // Before downloading image and render picture. We show some "placeholderView"
         self.placeholderView = [[UIView alloc] initWithFrame:self.contentView.frame];
         self.placeholderView.backgroundColor = [UIColor redColor];
         self.placeholderView.alpha = 0.7;
         [self.contentView addSubview:self.placeholderView];
+        // Setting ViewModel. And in Setter(setVm_cell) will begin download from server
+        self.vm_cell = vm;      
     }
     return self;
 }
@@ -76,20 +79,17 @@
     }
 }
 
-
-
 - (void) setVm_cell:(IHWelcomeStaticCell_ViewModel *)vm_cell
 {
-    // Вынести это определение во viewModel
-    // NSString* contryCode = @"ru";
-    // NSString* doneURL = [NSString stringWithFormat:@"https://github.com/.../IHHalloween/Localization/%@.IHWelcomeJSON.json",contryCode];
-
     _vm_cell = vm_cell;    
     if (_vm_cell.model_cell)
-    {
-        //[self initUISubviews: _vm_cell];
-        //[self addSubviewsOnContentView];
-        //[self updateUI: _vm_cell];
+    { // перенести в отдельный метод
+        [self initUISubviews: vm_cell];
+        [self addSubviewsOnContentView];
+        [self updateUI:self.vm_cell];
+        [self resizeSubviews];
+        [self.placeholderView removeFromSuperview];
+         self.placeholderView = nil;
     } else {
         __weak IHWelcomeStaticCell* bself = self;
         [_vm_cell getWelcomScreenDataFromURL: _vm_cell.urlUIConfig
@@ -97,7 +97,6 @@
                                      
                                            dispatch_sync(dispatch_get_main_queue(), ^{
                                                NSLog(@"setVm_cell getWelcomScreenDataFromURL -[NSThread isMainThread] = %@", ([NSThread isMainThread]) ? @"YES": @"NO");
-                                               // Обновить UI
                                                [bself initUISubviews: vm_cell];
                                                [bself addSubviewsOnContentView];
                                                [bself updateUI:bself.vm_cell];
@@ -105,10 +104,9 @@
                                                [bself.placeholderView removeFromSuperview];
                                                bself.placeholderView = nil;
                                            });
-                        
                                    }
                                    onFailure:^(NSError *errorBlock, NSObject *errObj) {
-                                    //#warning Обработь отсутствие интернета
+                                       [bself showOkeyAlertVC:@"Error" msg:@"Restart app and check your internet connection"];
                                    }];
     }
 }
@@ -123,12 +121,11 @@
 - (void) resizeSubviews {
     self.backgroundImgView.frame   = [self cgrectFor_BackgroundImgView];
     self.blurView.frame            = [self cgrectFor_BlurView];
-    self.appNameLbl.frame          = [self cgrectFor_AppNameLblwithText:_vm_cell.model_cell.mainLabelText withFont:_appNameLbl.font];
-    self.sloganLbl.frame           = [self cgrectFor_SloganLblwithText: _sloganLbl.text   withFont:_sloganLbl.font];
+    self.appNameLbl.frame          = [self cgrectFor_AppNameLblwithText: _vm_cell.model_cell.mainLabelText withFont:_appNameLbl.font];
+    self.sloganLbl.frame           = [self cgrectFor_SloganLblwithText:  _sloganLbl.text                   withFont:_sloganLbl.font];
     self.skipOnBoardBtn.frame      = [self cgrectFor_SkipOnBoardBtn];
     self.learnMoreBtn.frame        = [self cgrectFor_LearnMoreBtn];
 }
-
 
 - (void) addSubviewsOnContentView
 {
@@ -145,12 +142,13 @@
 - (void) initUISubviews:(IHWelcomeStaticCell_ViewModel*) vm
 {
     if (self.contentView){
-        
+        // Decide will gif picture or normal ?!
         if ([vm.model_cell.backgroundImgURL rangeOfString:@".gif"].location != NSNotFound) {
             self.backgroundImgView  = [[FLAnimatedImageView alloc] init];
         } else {
-            self.backgroundImgView = [[UIImageView alloc] init];
+            self.backgroundImgView  = [[FLAnimatedImageView alloc] init];
         }
+        // Decide will blur effect ?!
         if (vm.model_cell.backgroundImgTurnBlur){
             if (!UIAccessibilityIsReduceTransparencyEnabled()) {
                 self.blurView    = [[UIVisualEffectView alloc]init];
@@ -161,17 +159,15 @@
         self.appNameLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
         self.appNameLbl.textAlignment      = NSTextAlignmentCenter;
         
-        
         self.sloganLbl      = [UILabel new];
         self.sloganLbl.numberOfLines      = 0;
         self.sloganLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
         self.sloganLbl.textAlignment      = NSTextAlignmentCenter;
         
-        self.skipOnBoardBtn = [UIButton buttonWithType: UIButtonTypeSystem];
+        self.skipOnBoardBtn = [UIButton buttonWithType:       UIButtonTypeSystem];
         self.learnMoreBtn   = [IHLearnMoreBtn buttonWithType: UIButtonTypeSystem];
     }
 }
-
 
 
 - (void) updateUI:(IHWelcomeStaticCell_ViewModel*) vm
@@ -181,7 +177,13 @@
         NSString* fontName_AppNameLbl = vm.model_cell.mainLabelFontName;
         float     fontSize_AppNameLbl = (IDIOM == IPHONE) ? vm.model_cell.mainLabelFontSize_iPhone : vm.model_cell.mainLabelFontSize_iPad;
         UIFont*   fontForAppNameLbl = [UIFont fontWithName:fontName_AppNameLbl size:fontSize_AppNameLbl];
-        //#warning потом добавить родной шрит на случай падения
+        // Check the value of variables (for security)
+        if (!fontSize_AppNameLbl){
+            fontSize_AppNameLbl = (IDIOM == IPHONE) ? 20.f : 40.f;
+        }
+        if (!fontForAppNameLbl){
+            fontForAppNameLbl = [UIFont fontWithName:@"IBMPlexSerif-Medium" size:fontSize_AppNameLbl];
+        }
         self.appNameLbl.text = vm.model_cell.mainLabelText;
         self.appNameLbl.font = fontForAppNameLbl;
      
@@ -190,7 +192,13 @@
         NSString* fontName_SloganLb = vm.model_cell.subLabelFontName;
         float     fontSize_SloganLb = (IDIOM == IPHONE) ? vm.model_cell.subLabelFontSize_iPhone : vm.model_cell.subLabelFontSize_iPad;
         UIFont*   fontForSloganLbl = [UIFont fontWithName:fontName_SloganLb size:fontSize_SloganLb];
-        
+        // Check the value of variables (for security)
+        if (!fontSize_SloganLb){
+             fontSize_SloganLb = (IDIOM == IPHONE) ? 10.f : 20.f;
+        }
+        if (!fontForSloganLbl){
+            fontForSloganLbl = [UIFont fontWithName:@"IBMPlexSerif-Regular" size:fontSize_SloganLb];
+        }
         self.sloganLbl.text =  vm.model_cell.subLabelText;
         self.sloganLbl.font = fontForSloganLbl;
       
@@ -199,6 +207,13 @@
         NSString* fontName_skipOnBoardBtn = vm.model_cell.skipOnBoardingBtnLabelFontName;
         float     fontSize_skipOnBoardBtn = (IDIOM == IPHONE) ? vm.model_cell.skipOnBoardingBtnLabelFontSize_iPhone : vm.model_cell.skipOnBoardingBtnLabelFontSize_iPad;
         UIFont*   font_skipOnBoardBtn = [UIFont fontWithName:fontName_skipOnBoardBtn size:fontSize_skipOnBoardBtn];
+        // Check the value of variables (for security)
+        if (!fontSize_skipOnBoardBtn){
+             fontSize_skipOnBoardBtn = (IDIOM == IPHONE) ? 10.f : 20.f;
+        }
+        if (!font_skipOnBoardBtn){
+            font_skipOnBoardBtn = [UIFont fontWithName:@"Oswald-ExtraLight" size:fontSize_skipOnBoardBtn];
+        }
         
         self.skipOnBoardBtn.titleLabel.font = font_skipOnBoardBtn;
         [self.skipOnBoardBtn setTitleColor:[UIColor whiteColor]                 forState: UIControlStateNormal];
@@ -209,6 +224,13 @@
         NSString* fontName_learnMoreBtn = vm.model_cell.learnMoreBtnLabelFontName;
         float     fontSize_learnMoreBtn = (IDIOM == IPHONE) ? vm.model_cell.learnMoreBtnLabelFontSize_iPhone : vm.model_cell.learnMoreBtnLabelFontSize_iPad;
         UIFont*   font_learnMoreBtn     = [UIFont fontWithName:fontName_learnMoreBtn size:fontSize_learnMoreBtn];
+        // Check the value of variables (for security)
+        if (!fontSize_learnMoreBtn){
+            fontSize_learnMoreBtn = (IDIOM == IPHONE) ? 10.f : 20.f;
+        }
+        if (!font_learnMoreBtn){
+            font_learnMoreBtn = [UIFont fontWithName:@"Oswald-ExtraLight" size:fontSize_learnMoreBtn];
+        }
         
         self.learnMoreBtn.titleLabel.font = font_learnMoreBtn;
         self.learnMoreBtn.layer.masksToBounds = YES;
@@ -219,6 +241,7 @@
         self.backgroundImgView.contentMode      = UIViewContentModeScaleAspectFill;
         self.backgroundImgView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         
+        // Dice turn blur or no
         if (vm.model_cell.backgroundImgTurnBlur){
             
             if (!UIAccessibilityIsReduceTransparencyEnabled()) {
@@ -241,12 +264,10 @@
             NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
             NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfig];
             
-            NSURLSessionDownloadTask *downloadPhotoTask = [session//[NSURLSession sharedSession]
+            NSURLSessionDownloadTask *downloadPhotoTask = [session
                                                            downloadTaskWithURL:imgURL
                                                            completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
                                                                
-
-
                                                                NSData* data =  [NSData dataWithContentsOfURL:location];
                                                                if (data) {
                                                                   
@@ -263,23 +284,15 @@
                                                                    }
                                                                    });
                                                                }
-                                                               //[bself resizeSubviews];
                                                            }];
             [downloadPhotoTask resume];
             
         } else {
             // Добавляем одноцветый фон
-            self.backgroundImgView.backgroundColor = [UIColor yellowColor];
+            // self.backgroundImgView.backgroundColor = [UIColor yellowColor];
         }
     }
 }
-
-
-
-
-
-
-
 
 #pragma mark - Get CGrect configuration for all subviews
 
@@ -342,7 +355,26 @@
 }
 
 
-#pragma mark - Helpers
+#pragma mark - Helper UI method (Showing alertView/Presenting view ect..)
+
+- (void) showOkeyAlertVC:(NSString*) title msg:(NSString*) message
+{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action){ }];
+    [alert addAction:okAction];
+    UIViewController *rootVC = [UIApplication sharedApplication].keyWindow.rootViewController;
+
+    BOOL isMainTread = [NSThread isMainThread];
+    if (isMainTread){
+        [rootVC presentViewController:alert animated:YES completion:nil];
+    }else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [rootVC presentViewController:alert animated:YES completion:nil];
+        });
+    }
+}
+
+#pragma mark -  Another Helpers
 
 + (UIColor *)colorFromHexString:(NSString *)hexString {
     unsigned rgbValue = 0;
@@ -372,149 +404,5 @@
     return [UIColor colorWithPatternImage:image];
 }
 
-
-/*
-- (void) initUISubviews:(IHWelcomeStaticCell_ViewModel*) vm
-{
-    if (self.contentView){
-        
-        if ([vm.model_cell.backgroundImgURL rangeOfString:@".gif"].location != NSNotFound) {
-            self.backgroundImgView  = [[FLAnimatedImageView alloc] init];
-        } else {
-            self.backgroundImgView = [[UIImageView alloc] init];
-        }
-        
-        if (vm.model_cell.backgroundImgTurnBlur){
-            
-            if (!UIAccessibilityIsReduceTransparencyEnabled()) {
-                self.blurView    = [[UIVisualEffectView alloc]init];
-            }
-        }
-        self.appNameLbl     = [UILabel new];
-        self.sloganLbl      = [UILabel new];
-        self.skipOnBoardBtn = [UIButton buttonWithType: UIButtonTypeSystem];
-        self.learnMoreBtn   = [IHLearnMoreBtn buttonWithType: UIButtonTypeSystem];
-    }
-}
-
-
-- (void) addSubviewsOnContentView
-{
-    if (self.contentView){
-        if (self.backgroundImgView) [self.contentView addSubview: self.backgroundImgView];
-        if (self.blurView)          [self.contentView addSubview: self.blurView];
-        if (self.appNameLbl)        [self.contentView addSubview: self.appNameLbl];
-        if (self.sloganLbl)         [self.contentView addSubview: self.sloganLbl];
-        if (self.skipOnBoardBtn)    [self.contentView addSubview: self.skipOnBoardBtn];
-        if (self.learnMoreBtn)      [self.contentView addSubview: self.learnMoreBtn];
-    }
-}
-
-- (void) updateUI:(IHWelcomeStaticCell_ViewModel*) vm
-{
-    
-    if (vm){
-        // IDEA FOR HALLOWEEN
-        NSString* fontName_AppNameLbl = vm.model_cell.mainLabelFontName;
-        float     fontSize_AppNameLbl = (IDIOM == IPHONE) ? vm.model_cell.mainLabelFontSize_iPhone : vm.model_cell.mainLabelFontSize_iPad;
-        UIFont*   fontForAppNameLbl = [UIFont fontWithName:fontName_AppNameLbl size:fontSize_AppNameLbl];
-        //#warning потом добавить родной шрит на случай падения
-        self.appNameLbl.text = vm.model_cell.mainLabelText;
-        self.appNameLbl.font = fontForAppNameLbl;
-        self.appNameLbl.numberOfLines = 0;
-        self.appNameLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
-        self.appNameLbl.textAlignment      = NSTextAlignmentCenter;
-        
-        
-        // Get to know the interactive history of Halloween
-        NSString* fontName_SloganLb = vm.model_cell.subLabelFontName;
-        float     fontSize_SloganLb = (IDIOM == IPHONE) ? vm.model_cell.subLabelFontSize_iPhone : vm.model_cell.subLabelFontSize_iPad;
-        UIFont*   fontForSloganLbl = [UIFont fontWithName:fontName_SloganLb size:fontSize_SloganLb];
-        
-        self.sloganLbl.text =  vm.model_cell.subLabelText;
-        self.sloganLbl.font = fontForSloganLbl;
-        self.sloganLbl.numberOfLines      = 0;
-        self.sloganLbl.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
-        self.sloganLbl.textAlignment      = NSTextAlignmentCenter;
-        
-        // No, thanks
-        NSString* fontName_skipOnBoardBtn = vm.model_cell.skipOnBoardingBtnLabelFontName;
-        float     fontSize_skipOnBoardBtn = (IDIOM == IPHONE) ? vm.model_cell.skipOnBoardingBtnLabelFontSize_iPhone : vm.model_cell.skipOnBoardingBtnLabelFontSize_iPad;
-        UIFont*   font_skipOnBoardBtn = [UIFont fontWithName:fontName_skipOnBoardBtn size:fontSize_skipOnBoardBtn];
-        
-        self.skipOnBoardBtn.titleLabel.font = font_skipOnBoardBtn;
-        [self.skipOnBoardBtn setTitleColor:[UIColor whiteColor]                 forState: UIControlStateNormal];
-        [self.skipOnBoardBtn setTitle: vm.model_cell.skipOnBoardingBtnLabelText forState: UIControlStateNormal];
-        
-        
-        // Learn more
-        NSString* fontName_learnMoreBtn = vm.model_cell.learnMoreBtnLabelFontName;
-        float     fontSize_learnMoreBtn = (IDIOM == IPHONE) ? vm.model_cell.learnMoreBtnLabelFontSize_iPhone : vm.model_cell.learnMoreBtnLabelFontSize_iPad;
-        UIFont*   font_learnMoreBtn     = [UIFont fontWithName:fontName_learnMoreBtn size:fontSize_learnMoreBtn];
-        
-        self.learnMoreBtn.titleLabel.font = font_learnMoreBtn;
-        self.learnMoreBtn.layer.masksToBounds = YES;
-        [self.learnMoreBtn setTitleColor:[UIColor whiteColor]           forState: UIControlStateNormal];
-        [self.learnMoreBtn setTitle:vm.model_cell.learnMoreBtnLabelText forState: UIControlStateNormal];
-        
-        // Download Image
-        self.backgroundImgView.contentMode      = UIViewContentModeScaleAspectFill;
-        self.backgroundImgView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        
-        if (vm.model_cell.backgroundImgTurnBlur){
-            
-            if (!UIAccessibilityIsReduceTransparencyEnabled()) {
-                
-                self.blurEffect  = [UIBlurEffect effectWithStyle:vm.model_cell.backgroundImgBlurType];
-                __weak IHWelcomeStaticCell* bself = self;
-                [UIView animateWithDuration:0.7 animations:^{
-                    bself.blurView.alpha     = vm.model_cell.backgroundImgBlurRadiusOrAlpha;
-                    bself.blurView.effect    = bself.blurEffect;
-                }];
-                self.blurView.frame   = self.contentView.frame;
-                self.blurView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-            }
-        }
-        
-        if (vm.model_cell.backgroundImgURL.length > 0){
-            __weak IHWelcomeStaticCell* bself = self;
-            
-            NSURL* imgURL = [NSURL URLWithString: vm.model_cell.backgroundImgURL];
-            NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-            NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfig];
-            
-            NSURLSessionDownloadTask *downloadPhotoTask = [session//[NSURLSession sharedSession]
-                                                           downloadTaskWithURL:imgURL
-                                                           completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
-                                                               
-#warning исправить в либах !!!!
-                                                               NSData* data =  [NSData dataWithContentsOfURL:location];
-                                                               //NSData* data=  [NSData dataWithContentsOfURL:imgURL];
-                                                               if (data) {
-                                                                   // GIF support
-                                                                   if ([imgURL.absoluteString rangeOfString:@".gif"].location != NSNotFound) {
-                                                                       FLAnimatedImage* animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:data];
-                                                                       //dispatch_async(dispatch_get_main_queue(), ^{
-                                                                       bself.backgroundImgView.animatedImage = animatedImage;
-                                                                       //});
-                                                                   }  // Another type support
-                                                                   else {
-                                                                       UIImage* image = [UIImage imageWithData:data];
-                                                                       //dispatch_async(dispatch_get_main_queue(), ^{
-                                                                       bself.backgroundImgView.image = image;
-                                                                       //});
-                                                                   }
-                                                               }
-                                                               [bself resizeSubviews];
-                                                           }];
-            [downloadPhotoTask resume];
-            
-        } else {
-            // Добавляем одноцветый фон
-            self.backgroundImgView.backgroundColor = [UIColor yellowColor];
-        }
-    }
-}
-*/
 @end
 
