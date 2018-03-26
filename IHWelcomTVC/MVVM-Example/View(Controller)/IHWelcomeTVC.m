@@ -32,11 +32,12 @@
 - (void)loadView{
     [super loadView];
  
-    IHWelcomeStaticCell_ViewModel* vm_cell = [[IHWelcomeStaticCell_ViewModel alloc] initWithUIConfigByURL:
-                                              [IHWelcomeStaticCell_ViewModel getCorrectURLbyLocation:@"https://raw.githubusercontent.com/m1a7/IHWelcomTVC/master/IHWelcomTVC/JSON/IHWelcomeJSON.json"]];
+    //IHWelcomeStaticCell_ViewModel* vm_cell = [[IHWelcomeStaticCell_ViewModel alloc] initWithUIConfigByURL:
+    //                                          [IHWelcomeStaticCell_ViewModel getCorrectURLbyLocation:@"https://raw.githubusercontent.com/m1a7/IHWelcomTVC/master/IHWelcomTVC/JSON/IHWelcomeJSON.json"]];
     // or
-    //IHWelcomeStaticCell_ViewModel* vm_cell = [[IHWelcomeStaticCell_ViewModel alloc] initWithMockupModel:[IHWelcomeStaticCell_Model defaultMockup]];
+    IHWelcomeStaticCell_ViewModel* vm_cell = [[IHWelcomeStaticCell_ViewModel alloc] initWithMockupModel:[IHWelcomeStaticCell_Model defaultMockup]];
     self.welcomeCell  = [[IHWelcomeStaticCell alloc] initWithViewModel:vm_cell];
+    [self.welcomeCell setController:self];
     
     self.tableView.alwaysBounceVertical = NO;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -58,6 +59,12 @@
     [super viewDidLoad];
    
 }
+
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return (UIStatusBarStyle)self.welcomeCell.vm_cell.model_cell.statusBarStyle;
+}
+
 
 
 #pragma mark - UITableViewDataSource

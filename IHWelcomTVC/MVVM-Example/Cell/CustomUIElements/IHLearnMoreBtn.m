@@ -17,6 +17,12 @@
 
 #import "IHUIUtilites.h"
 
+#define heightForIpad   40
+#define heightForIphone 30
+
+#define fontSizeForIpad   25
+#define fontSizeForIphone 15
+
 @implementation IHLearnMoreBtn
 
 - (instancetype)initWithParentCell:(IHWelcomeStaticCell*) pCell
@@ -24,6 +30,8 @@
     self = [IHLearnMoreBtn buttonWithType: UIButtonTypeSystem];
     if (self) {
         self.parentCell = pCell;
+        [self addTarget:pCell action:@selector(learnMoreBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+
     }
     return self;
 }
@@ -43,7 +51,7 @@
         smallerSide = CGRectGetWidth(self.frame);
 
     }    
-    self.layer.cornerRadius = (greaterSide/smallerSide)/2;
+    self.layer.cornerRadius = (greaterSide/smallerSide)/4;
 
     
     if (self.parentCell){
@@ -95,16 +103,23 @@
   
     // Check the value of variables (for security)
     if (!fontSize_learnMoreBtn){
-        fontSize_learnMoreBtn = (IDIOM == IPHONE) ? 10.f : 20.f;
+        fontSize_learnMoreBtn = (IDIOM == IPHONE) ? fontSizeForIphone : fontSizeForIpad;
     }
     if (!font_learnMoreBtn){
-        font_learnMoreBtn = [UIFont fontWithName:@"Oswald-ExtraLight" size:fontSize_learnMoreBtn];
+         font_learnMoreBtn = [UIFont fontWithName:@"Oswald-ExtraLight" size:fontSize_learnMoreBtn];
     }
     
     self.titleLabel.font = font_learnMoreBtn;
     self.layer.masksToBounds = YES;
     [self setTitleColor:[UIColor whiteColor]           forState: UIControlStateNormal];
     [self setTitle:vm.model_cell.learnMoreBtnLabelText forState: UIControlStateNormal];
+    
+    self.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.layer.shadowOffset = CGSizeMake(0.f, 1.2f);
+    self.layer.shadowOpacity = 0.7f;
+    self.layer.shadowRadius  = 1.0f;
+    self.layer.masksToBounds = NO;
+    
 }
 
 - (void) resizeByCell:(IHWelcomeStaticCell*) cell {
@@ -113,13 +128,15 @@
 
 - (CGRect) recalculateNewSizeByCell:(IHWelcomeStaticCell*) cell
 {
-    float heightOfLearnMoreBtn = 30.f;
+    float heightOfLearnMoreBtn = (IDIOM == IPHONE) ? heightForIphone : heightForIpad;
     float widthOfLearnMoreBtn  = CGRectGetWidth(cell.contentView.frame)-offset*2;
     float xOfLearnMoreBtn      = offset;
     float yOfLearnMoreBtn      = CGRectGetMinY(cell.skipOnBoardBtn.frame)-vertOffsetBtns-heightOfLearnMoreBtn;
     
     return  CGRectMake(xOfLearnMoreBtn, yOfLearnMoreBtn, widthOfLearnMoreBtn, heightOfLearnMoreBtn);
 }
+
+
 
 
 @end

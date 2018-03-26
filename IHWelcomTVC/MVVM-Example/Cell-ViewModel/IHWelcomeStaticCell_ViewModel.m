@@ -109,4 +109,28 @@
     // NSString* convertURL = [NSString stringWithFormat:@"https://raw.githubusercontent.com/m1a7/IHWelcomTVC/master/IHWelcomTVC/JSON/%@/IHWelcomeJSON.json", languageCode];
     return url;
 }
+
+#pragma mark - Action Handlers
+
+- (void) learnMoreBtnClicked:(NSString*)anyParameters
+               andHandler:(void(^)(BOOL successOperation)) success
+                onFailure:(void(^)(NSError* errorBlock)) failure
+{
+    // Here you can make some action
+    // For example:
+    // 1. Send request to server by ServerManager..
+    // 2. Here can be business logic..
+    success(YES);
+}
+
+- (void) noThanksBtnClicked:(NSString*)anyParameters
+                  andHandler:(void(^)(BOOL successOperation)) success
+                   onFailure:(void(^)(NSError* errorBlock)) failure
+{
+    // Here you can make some action
+    // For example:
+    // 1. Send request to server by ServerManager..
+    // 2. Here can be business logic..
+    success(YES);
+}
 @end

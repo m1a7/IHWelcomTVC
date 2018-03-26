@@ -10,4 +10,6 @@
 
 @interface IHWelcomeTVC : UITableViewController
 
+- (UIStatusBarStyle)preferredStatusBarStyle;
+
 @end

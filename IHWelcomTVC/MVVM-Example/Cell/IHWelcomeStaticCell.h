@@ -23,6 +23,8 @@
 // Model
 @class IHWelcomeStaticCell_Model;
 
+// Controller
+@class IHWelcomeTVC;
 
 #define offset 25.f
 #define vertOffsetBtns 15.f
@@ -37,6 +39,10 @@
 // ViewModel
 @property (nonatomic, strong) IHWelcomeStaticCell_ViewModel* vm_cell;
 
+// Controller
+@property (nonatomic, weak) IHWelcomeTVC* controller;
+
+
 @property (nonatomic, strong) IHBackgroundImgView* backgroundImgView;
 @property (nonatomic, strong) UIBlurEffect*        blurEffect;
 @property (nonatomic, strong) IHBlurView*          blurView;
@@ -49,6 +55,11 @@
 
 
 - (instancetype) initWithViewModel:(IHWelcomeStaticCell_ViewModel*) vm;
+
+
+#pragma mark - Action
+-(void) learnMoreBtnClicked:(UIButton*)sender;
+-(void) noThanksBtnClicked:(UIButton*)sender;
 
 @end
 

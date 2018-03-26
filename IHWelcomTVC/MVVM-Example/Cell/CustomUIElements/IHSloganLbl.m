@@ -61,7 +61,6 @@
 
 - (void) updateUIbyCell:(IHWelcomeStaticCell*) cell withCellViewModel:(IHWelcomeStaticCell_ViewModel*) vm
 {
-
     NSString* fontName_SloganLb = vm.model_cell.subLabelFontName;
     float     fontSize_SloganLb = (IDIOM == IPHONE) ? vm.model_cell.subLabelFontSize_iPhone : vm.model_cell.subLabelFontSize_iPad;
     UIFont*   fontForSloganLbl = [UIFont fontWithName:fontName_SloganLb size:fontSize_SloganLb];

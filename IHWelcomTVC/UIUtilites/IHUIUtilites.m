@@ -51,7 +51,9 @@
 + (UIColor*) action_gradientFromColorArrayColors:(NSArray<id>*)arrColors  withHeight:(float)height
 {
     if (arrColors.count <= 0) return [UIColor clearColor];
-
+  
+    
+    
     CGSize size = CGSizeMake(1, height);
     UIGraphicsBeginImageContextWithOptions(size, NO, 0);
     CGContextRef context = UIGraphicsGetCurrentContext();
@@ -70,6 +72,9 @@
             }
             if (convertToUIColor){
                 [colors addObject: (id)convertToUIColor.CGColor];
+            }
+            if (arrColors.count == 1){
+                return convertToUIColor;
             }
         }
     }

@@ -15,14 +15,13 @@
 + (FEMMapping *) defaultMapping {
     
     FEMMapping* mapping = [[FEMMapping alloc] initWithObjectClass:[IHWelcomeStaticCell_Model class]];
-    //mapping.rootPath = @"result";
-    
+    /*
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
     [formatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
     [formatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
     
-    /*
+   
     FEMAttribute *attribute = [[FEMAttribute alloc] initWithProperty:@"updateDate" keyPath:@"timestamp" map:^id(id value) {
         if ([value isKindOfClass:[NSString class]]) {
             return [formatter dateFromString:value];
@@ -117,39 +116,39 @@
     mockup.cellsUIStyle   = IHWelcomeCellStyleDefault;
     
     mockup.showStatusBar  = YES;
-    mockup.statusBarStyle = 0;
+    mockup.statusBarStyle = 1;
     
     mockup.mainLabelText     = @"IDEA FOR HALLOWEEN";
     mockup.mainLabelFontName = @"IBMPlexSerif-Medium";
     mockup.mainLabelFontSize_iPhone  = 25;
     mockup.mainLabelFontSize_iPad    = 45;
     mockup.mainLabelBackgroundColors = @[];
-    mockup.mainLabelFontColors       = @[@"#DAE7EC", @"#6A7A7C"];
+    mockup.mainLabelFontColors       = @[ @"#ffffff"];
     
     mockup.subLabelText     = @"Get to know the interactive history of Halloween";
     mockup.subLabelFontName = @"IBMPlexSerif-Regular";
     mockup.subLabelFontSize_iPhone  = 15;
-    mockup.subLabelFontSize_iPad    = 25;
+    mockup.subLabelFontSize_iPad    = 35;
     mockup.subLabelBackgroundColors = @[];
-    mockup.subLabelFontColors       = @[@"#DAE7EC", @"#6A7A7C"];
+    mockup.subLabelFontColors       = @[@"#ffffff"];
     
     
-    mockup.backgroundImgURL       = @"https://pp.userapi.com/c837725/v837725862/6bd03/DygeiL9IY24.jpg";
+    mockup.backgroundImgURL       = @"https://raw.githubusercontent.com/m1a7/IHWelcomTVC/master/IHWelcomTVC/Images/Halloween/GIF/10GIF.gif";
     mockup.backgroundImgTurnBlur  = YES;
-    mockup.backgroundImgBlurRadiusOrAlpha = 1.0;
+    mockup.backgroundImgBlurRadiusOrAlpha = 0.3;
     mockup.backgroundImgBlurType  = 1;
     
     mockup.learnMoreBtnLabelText      = @"Learn more..";
     mockup.learnMoreBtnLabelFontName  = @"Oswald-ExtraLight";
-    mockup.learnMoreBtnLabelFontSize_iPhone = 17;
-    mockup.learnMoreBtnLabelFontSize_iPad   = 27;
+    mockup.learnMoreBtnLabelFontSize_iPhone = 15;
+    mockup.learnMoreBtnLabelFontSize_iPad   = 22;
     mockup.learnMoreBtnBackgroundColors = @[@"#354342", @"#354342"];
     mockup.learnMoreBtnLabelFontColors  = @[@"#ffffff"];
     
     mockup.skipOnBoardingBtnLabelText      = @"No, thanks";
     mockup.skipOnBoardingBtnLabelFontName  = @"Oswald-ExtraLight";
     mockup.skipOnBoardingBtnLabelFontSize_iPhone = 15;
-    mockup.skipOnBoardingBtnLabelFontSize_iPad   = 15;
+    mockup.skipOnBoardingBtnLabelFontSize_iPad   = 22;
     mockup.skipOnBoardingBtnBackgroundColors = @[@"#474747", @"#363636"];
     mockup.skipOnBoardingBtnLabelFontColors  = @[@"#ffffff"];
 

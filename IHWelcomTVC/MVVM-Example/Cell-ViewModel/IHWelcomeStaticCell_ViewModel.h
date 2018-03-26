@@ -26,4 +26,15 @@
               onFailure:(void(^)(NSError* errorBlock,  NSObject* errObj)) failure;
 
 
+#pragma mark - Action Handlers
+
+- (void) learnMoreBtnClicked:(NSString*)anyParameters
+                  andHandler:(void(^)(BOOL successOperation)) success
+                   onFailure:(void(^)(NSError* errorBlock)) failure;
+
+
+- (void) noThanksBtnClicked:(NSString*)anyParameters
+                 andHandler:(void(^)(BOOL successOperation)) success
+                  onFailure:(void(^)(NSError* errorBlock)) failure;
+
 @end

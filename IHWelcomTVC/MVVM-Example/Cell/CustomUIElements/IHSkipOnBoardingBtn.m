@@ -15,6 +15,11 @@
 
 #import "IHUIUtilites.h"
 
+#define heightForIpad   40
+#define heightForIphone 30
+
+#define fontSizeForIpad   25
+#define fontSizeForIphone 15
 
 @implementation IHSkipOnBoardingBtn
 
@@ -23,6 +28,8 @@
     self = [IHSkipOnBoardingBtn buttonWithType: UIButtonTypeSystem];
     if (self) {
         self.parentCell = pCell;
+        [self addTarget:pCell action:@selector(noThanksBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+
     }
     return self;
 }
@@ -40,7 +47,6 @@
     }else {
         greaterSide = CGRectGetHeight(self.frame);
         smallerSide = CGRectGetWidth(self.frame);
-        
     }
     self.layer.cornerRadius = (greaterSide/smallerSide)/4;
 
@@ -61,7 +67,28 @@
 }
 
 - (void) setHighlighted:(BOOL)highlighted{
-    
+    if (self.userInteractionEnabled && highlighted) {
+        
+        [UIView animateWithDuration:0.15
+                              delay:0.f
+                            options:UIViewAnimationOptionCurveEaseOut
+                         animations:^{
+                             if (self.userInteractionEnabled){
+                                 self.transform = CGAffineTransformMakeScale(0.9f, 0.8f);
+                                 self.alpha = 0.5f;
+                                 [self setUserInteractionEnabled:NO];
+                             }
+                         } completion:^(BOOL finished) {
+                             [UIView animateWithDuration:0.15f
+                                              animations:^{
+                                                  if (!self.userInteractionEnabled){
+                                                      self.transform = CGAffineTransformIdentity;
+                                                      self.alpha = 1.f;
+                                                      [self setUserInteractionEnabled:YES];
+                                                  }
+                                              }];
+                         }];
+    }
 }
 
 - (void) updateUIbyCell:(IHWelcomeStaticCell*) cell withCellViewModel:(IHWelcomeStaticCell_ViewModel*) vm
@@ -72,7 +99,7 @@
     
     // Check the value of variables (for security)
     if (!fontSize_skipOnBoardBtn){
-        fontSize_skipOnBoardBtn = (IDIOM == IPHONE) ? 10.f : 20.f;
+        fontSize_skipOnBoardBtn = (IDIOM == IPHONE) ? fontSizeForIphone : fontSizeForIpad;
     }
     if (!font_skipOnBoardBtn){
         font_skipOnBoardBtn = [UIFont fontWithName:@"Oswald-ExtraLight" size:fontSize_skipOnBoardBtn];
@@ -81,6 +108,12 @@
     self.titleLabel.font = font_skipOnBoardBtn;
     [self setTitleColor:[UIColor whiteColor]                 forState: UIControlStateNormal];
     [self setTitle: vm.model_cell.skipOnBoardingBtnLabelText forState: UIControlStateNormal];
+    
+    self.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.layer.shadowOffset = CGSizeMake(0.f, 1.2f);
+    self.layer.shadowOpacity = 0.7f;
+    self.layer.shadowRadius  = 1.0f;
+    self.layer.masksToBounds = NO;
 }
 
 - (void) resizeByCell:(IHWelcomeStaticCell*) cell {
@@ -89,7 +122,7 @@
 
 - (CGRect) recalculateNewSizeByCell:(IHWelcomeStaticCell*) cell
 {
-    float heightOfSkipOnBoardBtn = 20.f;
+    float heightOfSkipOnBoardBtn = (IDIOM == IPHONE) ? heightForIphone : heightForIpad;
     float widthOfSkipOnBoardBtn  = CGRectGetWidth(cell.contentView.frame)-offset*2;
     float xOfSkipOnBoardBtn      = offset;
     float yOfSkipOnBoardBtn      = CGRectGetMaxY(cell.contentView.frame)-vertOffsetBtns-heightOfSkipOnBoardBtn;

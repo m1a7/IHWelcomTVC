@@ -31,6 +31,8 @@
 // ViewModel
 #import "IHWelcomeStaticCell_ViewModel.h"
 
+#import "IHWelcomeTVC.h"
+
 @interface IHWelcomeStaticCell ()
 
 @property (strong, nonatomic) IHPlaceholderView* placeholderView;
@@ -201,7 +203,48 @@
                 [subview updateUIbyCell:self withCellViewModel:self.vm_cell];
             }
         }
+        [self.controller preferredStatusBarStyle];
     }
+}
+
+- (void) setController:(IHWelcomeTVC *)controller
+{
+    _controller = controller;
+    [controller preferredStatusBarStyle];
+}
+
+#pragma mark - Action Handlers
+
+-(void) learnMoreBtnClicked:(UIButton*)sender
+{
+    NSLog(@"learnMoreBtnClicked");
+    
+    [self.vm_cell learnMoreBtnClicked:@"foo"
+                           andHandler:^(BOOL successOperation) {
+                               
+                               // Here you may make some action.
+                               // For example:
+                               // 1. Push new ViewController
+                               // 2. To Show some on this screen
+                               // 3. ect...
+                           } onFailure:^(NSError *errorBlock) {
+                               
+                           }];
+}
+
+-(void) noThanksBtnClicked:(UIButton*)sender
+{
+    NSLog(@"noThanksBtnClicked");
+    [self.vm_cell noThanksBtnClicked:@"foo"
+                          andHandler:^(BOOL successOperation) {
+                              // Here you may make some action.
+                              // For example:
+                              // 1. Push new ViewController
+                              // 2. To Show some on this screen
+                              // 3. ect...
+                          } onFailure:^(NSError *errorBlock) {
+                              
+                          }];
 }
 
 

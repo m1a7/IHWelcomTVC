@@ -79,7 +79,7 @@
 - (CGRect) recalculateNewSizeByCell:(IHWelcomeStaticCell*) cell
 {
     float x = offset;
-    float y = offset;
+    float y = offset*2;
     float widthAppNameLbl  =  CGRectGetWidth(cell.contentView.frame)-offset*2;
     float heightAppNameLbl = [self.text heightForWidth: widthAppNameLbl font:self.font];
     return CGRectMake(x, y, widthAppNameLbl, heightAppNameLbl);
