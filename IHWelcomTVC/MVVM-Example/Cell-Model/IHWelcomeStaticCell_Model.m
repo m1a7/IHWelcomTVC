@@ -133,8 +133,8 @@
     mockup.subLabelFontColors       = @[@"#ffffff"];
     
     
-    mockup.backgroundImgURL       = @"https://raw.githubusercontent.com/m1a7/IHWelcomTVC/master/IHWelcomTVC/Images/Halloween/GIF/10GIF.gif";
-    mockup.backgroundImgTurnBlur  = YES;
+    mockup.backgroundImgURL       =@"https://raw.githubusercontent.com/m1a7/IHWelcomTVC/master/IHWelcomTVC/Images/Halloween/GIF/10GIF.gif";
+    mockup.backgroundImgTurnBlur  = NO;
     mockup.backgroundImgBlurRadiusOrAlpha = 0.3;
     mockup.backgroundImgBlurType  = 1;
     

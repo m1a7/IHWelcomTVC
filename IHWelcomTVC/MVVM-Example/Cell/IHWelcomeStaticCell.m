@@ -75,6 +75,11 @@
   [super setFrame:frame];
 }
 
+- (void) setController:(IHWelcomeTVC *)controller {
+    _controller = controller;
+    [controller preferredStatusBarStyle];
+}
+
 /*
  This is the overridden setter of our viewModel.
  If it already has a data model, then the -prepareCellForDisplay: method is immediately called.
@@ -207,11 +212,6 @@
     }
 }
 
-- (void) setController:(IHWelcomeTVC *)controller
-{
-    _controller = controller;
-    [controller preferredStatusBarStyle];
-}
 
 #pragma mark - Action Handlers
 
