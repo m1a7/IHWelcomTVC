@@ -9,9 +9,14 @@
 #import <UIKit/UIKit.h>
 
 // UI
+@class IHBackgroundImgView;
+@class IHBlurView;
+
+@class IHAppNameLbl;
+@class IHSloganLbl;
+
 @class IHLearnMoreBtn;
-@class FLAnimatedImage;
-@class FLAnimatedImageView;
+@class IHSkipOnBoardingBtn;
 
 // ViewModel
 @class IHWelcomeStaticCell_ViewModel;
@@ -19,22 +24,28 @@
 @class IHWelcomeStaticCell_Model;
 
 
+#define offset 25.f
+#define vertOffsetBtns 15.f
+
+#define IDIOM    UI_USER_INTERFACE_IDIOM()
+#define IPAD     UIUserInterfaceIdiomPad
+#define IPHONE   UIUserInterfaceIdiomPhone
+
 
 @interface IHWelcomeStaticCell : UITableViewCell
+
 // ViewModel
 @property (nonatomic, strong) IHWelcomeStaticCell_ViewModel* vm_cell;
 
-// UI
-@property (nonatomic, strong) FLAnimatedImageView* backgroundImgView;
+@property (nonatomic, strong) IHBackgroundImgView* backgroundImgView;
+@property (nonatomic, strong) UIBlurEffect*        blurEffect;
+@property (nonatomic, strong) IHBlurView*          blurView;
 
-@property (nonatomic, strong) UIBlurEffect*       blurEffect;
-@property (nonatomic, strong) UIVisualEffectView* blurView;
+@property (nonatomic, strong) IHAppNameLbl* appNameLbl;
+@property (nonatomic, strong) IHSloganLbl*  sloganLbl;
 
-@property (nonatomic, strong) UILabel* appNameLbl;
-@property (nonatomic, strong) UILabel* sloganLbl;
-
-@property (nonatomic, strong) IHLearnMoreBtn* learnMoreBtn;
-@property (nonatomic, strong) UIButton* skipOnBoardBtn;
+@property (nonatomic, strong) IHLearnMoreBtn*      learnMoreBtn;
+@property (nonatomic, strong) IHSkipOnBoardingBtn* skipOnBoardBtn;
 
 
 - (instancetype) initWithViewModel:(IHWelcomeStaticCell_ViewModel*) vm;

@@ -1,17 +1,19 @@
 //
-//  IHLearnMoreBtn.h
+//  IHSkipOnBoardingBtn.h
 //  IHWelcomTVC
 //
-//  Created by Uber on 19/03/2018.
+//  Created by Uber on 25/03/2018.
 //  Copyright © 2018 uber. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
+
 @class IHWelcomeStaticCell;
 @class IHWelcomeStaticCell_ViewModel;
 
-@interface IHLearnMoreBtn : UIButton
+@interface IHSkipOnBoardingBtn : UIButton
+
 
 @property (weak, nonatomic) IHWelcomeStaticCell* parentCell;
 
@@ -22,3 +24,8 @@
 - (CGRect) recalculateNewSizeByCell:(IHWelcomeStaticCell*) cell;
 
 @end
+
+
+
+
+

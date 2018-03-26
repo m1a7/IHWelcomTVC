@@ -1,8 +1,8 @@
 //
-//  IHLearnMoreBtn.h
+//  IHBlurView.h
 //  IHWelcomTVC
 //
-//  Created by Uber on 19/03/2018.
+//  Created by Uber on 25/03/2018.
 //  Copyright © 2018 uber. All rights reserved.
 //
 
@@ -11,7 +11,7 @@
 @class IHWelcomeStaticCell;
 @class IHWelcomeStaticCell_ViewModel;
 
-@interface IHLearnMoreBtn : UIButton
+@interface IHBlurView : UIVisualEffectView
 
 @property (weak, nonatomic) IHWelcomeStaticCell* parentCell;
 
@@ -21,4 +21,6 @@
 - (void) updateUIbyCell:(IHWelcomeStaticCell*) cell withCellViewModel:(IHWelcomeStaticCell_ViewModel*) vm;
 - (CGRect) recalculateNewSizeByCell:(IHWelcomeStaticCell*) cell;
 
+
 @end
+
